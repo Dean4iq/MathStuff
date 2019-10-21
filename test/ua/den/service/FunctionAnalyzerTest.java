@@ -21,7 +21,7 @@ public class FunctionAnalyzerTest {
     private double z = 100;
     private int roundingMethod = BigDecimal.ROUND_HALF_UP;
     private int scale = 11;
-    private String function = "111+(x+y)^3*x+x/(y*6+x*z)*x+x/y+32";
+    private String function = "100+30^2/x-z+y*(x+123-0.001)";
 
     @Before
     public void setUp() {
@@ -47,7 +47,7 @@ public class FunctionAnalyzerTest {
         function = "x+0.1";
         testedObject.setFunction(function);
 
-        assertEquals(new BigDecimal(x+0.1).setScale(scale,roundingMethod), testedObject.solve());
+        assertEquals(new BigDecimal(x + 0.1).setScale(scale, roundingMethod), testedObject.solve());
     }
 
     @Test
@@ -59,30 +59,12 @@ public class FunctionAnalyzerTest {
     }
 
     private BigDecimal solveFunc() {
-        BigDecimal result = BigDecimal.ZERO;
-        result = result.setScale(scale, roundingMethod);
+        BigDecimal result = BigDecimal.ZERO.setScale(scale, roundingMethod);
 
-        result = result.add(new BigDecimal(x).setScale(scale, roundingMethod)
-                .add(new BigDecimal(y).setScale(scale, roundingMethod))
-                .setScale(scale, roundingMethod)).setScale(scale, roundingMethod);
-
-        result = result.pow(3).setScale(scale, roundingMethod);
-
-        result = result.multiply(new BigDecimal(x).setScale(scale, roundingMethod)).setScale(scale, roundingMethod);
-
-        result = result.add(new BigDecimal(111).setScale(scale, roundingMethod)).setScale(scale, roundingMethod);
-
-        result = result.add(new BigDecimal(32).setScale(scale, roundingMethod)).setScale(scale, roundingMethod);
-
-        result = result.add(new BigDecimal(x).setScale(scale, roundingMethod).divide(new BigDecimal(y).setScale(scale, roundingMethod), BigDecimal.ROUND_HALF_UP)
-                .setScale(scale, roundingMethod)).setScale(scale, roundingMethod);
-
-        result = result.add(new BigDecimal(x).setScale(scale, roundingMethod).divide(new BigDecimal(y).setScale(scale, roundingMethod)
-                .multiply(new BigDecimal(6).setScale(scale, roundingMethod)).setScale(scale, roundingMethod)
-                .add(new BigDecimal(x).setScale(scale, roundingMethod)
-                        .multiply(new BigDecimal(z).setScale(scale, roundingMethod)).setScale(scale, roundingMethod)).setScale(scale, roundingMethod),
-                BigDecimal.ROUND_HALF_UP).setScale(scale, roundingMethod)
-                .multiply(new BigDecimal(x).setScale(scale, roundingMethod)).setScale(scale, roundingMethod)).setScale(scale, roundingMethod);
+        result = result.add(new BigDecimal(100).setScale(scale, roundingMethod)).setScale(scale, roundingMethod);
+        result = result.add(new BigDecimal(y).setScale(scale, roundingMethod).multiply(new BigDecimal(x).setScale(scale, roundingMethod).add(new BigDecimal(123).setScale(scale, roundingMethod)).subtract(new BigDecimal("0.001").setScale(scale, roundingMethod)).setScale(scale, roundingMethod))).setScale(scale, roundingMethod);
+        result = result.subtract(new BigDecimal(z).setScale(scale, roundingMethod)).setScale(scale, roundingMethod);
+        result = result.add(new BigDecimal(30).setScale(scale, roundingMethod).pow(2).setScale(scale, roundingMethod).divide(new BigDecimal(x).setScale(scale, roundingMethod), BigDecimal.ROUND_HALF_UP).setScale(scale, roundingMethod)).setScale(scale, roundingMethod);
 
         return result.setScale(scale, roundingMethod);
     }
