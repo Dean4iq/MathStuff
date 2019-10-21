@@ -29,7 +29,7 @@ public class IntegralCounter {
 
             result = result.add(functionAnalyzer.solve().setScale(scale, BigDecimal.ROUND_HALF_UP)).setScale(scale, BigDecimal.ROUND_HALF_UP);
         }
-        
+
         return result.
                 multiply(intervalsObject).
                 setScale(scale, BigDecimal.ROUND_HALF_UP);
