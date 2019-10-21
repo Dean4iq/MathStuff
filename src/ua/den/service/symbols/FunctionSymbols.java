@@ -8,10 +8,10 @@ import java.util.Map;
 import java.util.Set;
 
 public class FunctionSymbols {
-    public static final String OPEN_DELIMITER = "(";
-    public static final String CLOSE_DELIMITER = ")";
-    public static final char OPEN_DELIMITER_CHAR = '(';
-    public static final char CLOSE_DELIMITER_CHAR = ')';
+    public static final String OPEN_PARENTHESIS = "(";
+    public static final String CLOSE_PARENTHESIS = ")";
+    public static final char OPEN_PARENTHESIS_CHAR = '(';
+    public static final char CLOSE_PARENTHESIS_CHAR = ')';
     public static Map<String, PrimitiveFunction> mathCharacters = new HashMap<>();
     public static Map<String, PrimitiveFunction> operationCharacters = new HashMap<>();
     public static Set<String> operandsToDelimit = new HashSet<>();

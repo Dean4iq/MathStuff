@@ -4,7 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.BlockJUnit4ClassRunner;
-import ua.den.exceptions.DelimiterUnpairedException;
+import ua.den.exceptions.ParenthesisUnpairedException;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -51,8 +51,8 @@ public class FunctionAnalyzerTest {
         assertEquals(new BigDecimal(x + 0.1).setScale(scale, roundingMethod), testedObject.solve());
     }
 
-    @Test(expected = DelimiterUnpairedException.class)
-    public void checkSolveShouldThrowDelimiterUnpairedException() {
+    @Test(expected = ParenthesisUnpairedException.class)
+    public void checkSolveShouldThrowParenthesisUnpairedException() {
         function = "x+(75-1)/45)";
         testedObject.setFunction(function);
 

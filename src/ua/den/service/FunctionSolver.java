@@ -28,8 +28,8 @@ public class FunctionSolver {
             if (mathCharacters.containsKey(iterationSymbolString)
                     || operationCharacters.containsKey(iterationSymbolString)
                     || variables.containsKey(iterationSymbolString)
-                    || OPEN_DELIMITER.equals(iterationSymbolString)
-                    || CLOSE_DELIMITER.equals(iterationSymbolString)
+                    || OPEN_PARENTHESIS.equals(iterationSymbolString)
+                    || CLOSE_PARENTHESIS.equals(iterationSymbolString)
                     || iterationSymbolString.matches("(\\d|\\.)+")) {
                 if (mathCharacters.containsKey(iterationSymbolString)) {
                     result = mathCharacters.get(iterationSymbolString).solve(interpretFunction(Arrays.copyOfRange(function, 0, functionIndex), BigDecimal.ZERO), result);
@@ -69,20 +69,20 @@ public class FunctionSolver {
 
     private BigDecimal resolveDelimitedPart(char[] function) {
         BigDecimal buffer = BigDecimal.ZERO;
-        String ss = new String(function);
+
         int index = function.length - 1;
         while (index >= 0) {
-            if (function[index] == OPEN_DELIMITER_CHAR) {
+            if (function[index] == OPEN_PARENTHESIS_CHAR) {
                 return interpretFunction(Arrays.copyOfRange(function, index + 1, function.length), buffer);
-            } else if (function[index] == CLOSE_DELIMITER_CHAR) {
+            } else if (function[index] == CLOSE_PARENTHESIS_CHAR) {
                 buffer = resolveDelimitedPart(Arrays.copyOfRange(function, 0, index));
 
                 int closedQ = 0;
                 for (int i = index - 1; i >= 0; i--) {
-                    if (function[i] == ')') {
+                    if (function[i] == CLOSE_PARENTHESIS_CHAR) {
                         closedQ++;
                     }
-                    if (function[i] == '(') {
+                    if (function[i] == OPEN_PARENTHESIS_CHAR) {
                         if (closedQ == 0) {
                             index = i;
                             break;
@@ -103,9 +103,9 @@ public class FunctionSolver {
         int countOfCloseDelimiter = 0;
 
         for (int i = function.length - 1; i >= 0; i--) {
-            if (function[i] == CLOSE_DELIMITER_CHAR) {
+            if (function[i] == CLOSE_PARENTHESIS_CHAR) {
                 countOfCloseDelimiter++;
-            } else if (function[i] == OPEN_DELIMITER_CHAR) {
+            } else if (function[i] == OPEN_PARENTHESIS_CHAR) {
                 countOfCloseDelimiter--;
                 if (countOfCloseDelimiter == 0) {
                     return Arrays.copyOfRange(function, 0, i);

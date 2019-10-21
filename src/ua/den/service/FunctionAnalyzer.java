@@ -1,6 +1,6 @@
 package ua.den.service;
 
-import ua.den.exceptions.DelimiterUnpairedException;
+import ua.den.exceptions.ParenthesisUnpairedException;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -20,13 +20,13 @@ public class FunctionAnalyzer {
     }
 
     public BigDecimal solve() {
-        checkDelimiters(function);
-        function = new String(delimitSpecSymbols());
+        checkParenthesis(function);
+        function = new String(parenthesiseSpecSymbols());
 
         return functionSolver.solve(this).setScale(scale, roundingMethod);
     }
 
-    private char[] delimitSpecSymbols() {
+    private char[] parenthesiseSpecSymbols() {
         StringBuilder result = new StringBuilder(function);
         removeWhitespaces(result);
         StringBuilder buffer = new StringBuilder();
@@ -39,17 +39,17 @@ public class FunctionAnalyzer {
             if (mathCharacters.containsKey(bufferValue)
                     || operationCharacters.containsKey(bufferValue)
                     || variables.containsKey(bufferValue)
-                    || OPEN_DELIMITER.equals(bufferValue)
-                    || CLOSE_DELIMITER.equals(bufferValue)
+                    || OPEN_PARENTHESIS.equals(bufferValue)
+                    || CLOSE_PARENTHESIS.equals(bufferValue)
                     || bufferValue.matches("(\\d|\\.)+")) {
                 if (operandsToDelimit.contains(buffer.toString())) {
                     String operand = buffer.toString();
 
                     if (operand.equals("*") || operand.equals("/")) {
-                        processMultiplicationAndDivisionDelimit(result, counter);
+                        processMultiplicationAndDivisionParenthesis(result, counter);
                         counter++;
                     } else if (operand.equals("^")) {
-                        processPowerDelimit(result, counter);
+                        processPowerParenthesis(result, counter);
                     }
                 }
 
@@ -62,64 +62,64 @@ public class FunctionAnalyzer {
         return result.toString().toCharArray();
     }
 
-    private void checkDelimiters(String function) {
+    private void checkParenthesis(String function) {
         int unpairedDelimitersCount = 0;
 
         for (char symbol : function.toCharArray()) {
-            if (symbol == '(') {
+            if (symbol == OPEN_PARENTHESIS_CHAR) {
                 unpairedDelimitersCount++;
-            } else if (symbol == ')') {
+            } else if (symbol == CLOSE_PARENTHESIS_CHAR) {
                 unpairedDelimitersCount--;
             }
         }
 
         if (unpairedDelimitersCount != 0) {
-            throw new DelimiterUnpairedException();
+            throw new ParenthesisUnpairedException();
         }
     }
 
-    private void processMultiplicationAndDivisionDelimit(StringBuilder function, int position) {
-        boolean openedDelimiter = false;
-        boolean closestDelimiterFound = false;
-        int closedDelimiterCounter = 0;
-        int closestDelimiterPosition = 0;
+    private void processMultiplicationAndDivisionParenthesis(StringBuilder function, int position) {
+        boolean openedParenthesis = false;
+        boolean closestParenthesisFound = false;
+        int closedParenthesisCounter = 0;
+        int closestParenthesisPosition = 0;
 
         for (int i = position - 1; i >= 0; i--) {
-            if (function.charAt(i) == CLOSE_DELIMITER_CHAR) {
-                closedDelimiterCounter++;
-            } else if (function.charAt(i) == OPEN_DELIMITER_CHAR) {
-                if (closedDelimiterCounter > 0) {
-                    closedDelimiterCounter--;
+            if (function.charAt(i) == CLOSE_PARENTHESIS_CHAR) {
+                closedParenthesisCounter++;
+            } else if (function.charAt(i) == OPEN_PARENTHESIS_CHAR) {
+                if (closedParenthesisCounter > 0) {
+                    closedParenthesisCounter--;
                 } else {
-                    closestDelimiterFound = true;
-                    closestDelimiterPosition = i;
+                    closestParenthesisFound = true;
+                    closestParenthesisPosition = i;
                     break;
                 }
             } else if (function.charAt(i) == '+' || function.charAt(i) == '-') {
-                if (closedDelimiterCounter == 0) {
-                    function.insert(i + 1, "(");
+                if (closedParenthesisCounter == 0) {
+                    function.insert(i + 1, OPEN_PARENTHESIS);
                     position++;
-                    openedDelimiter = true;
+                    openedParenthesis = true;
                     break;
                 }
             }
         }
 
-        int openedDelimiterCount = 0;
+        int openedParenthesisCount = 0;
         boolean closedDelimited = false;
 
         for (int i = position + 1; i < function.length(); i++) {
             if (function.charAt(i) == '+' || function.charAt(i) == '-') {
-                if (openedDelimiterCount == 0) {
-                    function.insert(i, ")");
+                if (openedParenthesisCount == 0) {
+                    function.insert(i, CLOSE_PARENTHESIS);
 
-                    if (!openedDelimiter) {
-                        if (closestDelimiterFound) {
-                            function.insert(closestDelimiterPosition, "(");
-                            openedDelimiter = true;
+                    if (!openedParenthesis) {
+                        if (closestParenthesisFound) {
+                            function.insert(closestParenthesisPosition, OPEN_PARENTHESIS);
+                            openedParenthesis = true;
                         } else {
-                            function.insert(0, "(");
-                            openedDelimiter = true;
+                            function.insert(0, OPEN_PARENTHESIS);
+                            openedParenthesis = true;
                         }
                     }
 
@@ -127,13 +127,13 @@ public class FunctionAnalyzer {
 
                     break;
                 }
-            } else if (function.charAt(i) == OPEN_DELIMITER_CHAR) {
-                openedDelimiterCount++;
-            } else if (function.charAt(i) == CLOSE_DELIMITER_CHAR) {
-                if (openedDelimiterCount > 0) {
-                    openedDelimiterCount--;
-                } else if (openedDelimiter) {
-                    function.insert(i, ")");
+            } else if (function.charAt(i) == OPEN_PARENTHESIS_CHAR) {
+                openedParenthesisCount++;
+            } else if (function.charAt(i) == CLOSE_PARENTHESIS_CHAR) {
+                if (openedParenthesisCount > 0) {
+                    openedParenthesisCount--;
+                } else if (openedParenthesis) {
+                    function.insert(i, CLOSE_PARENTHESIS);
                     closedDelimited = true;
                     break;
                 } else {
@@ -142,68 +142,68 @@ public class FunctionAnalyzer {
             }
         }
 
-        if (openedDelimiter && !closedDelimited) {
-            function.insert(function.length(), ")");
+        if (openedParenthesis && !closedDelimited) {
+            function.insert(function.length(), CLOSE_PARENTHESIS);
         }
     }
 
-    private void processPowerDelimit(StringBuilder function, int position) {
-        boolean openedDelimiter = false;
-        boolean closestDelimiterFound = false;
-        int closedDelimiterCounter = 0;
-        int closestDelimiterPosition = 0;
+    private void processPowerParenthesis(StringBuilder function, int position) {
+        boolean openedParenthesis = false;
+        boolean closestParenthesisFound = false;
+        int closedParenthesisCounter = 0;
+        int closestParenthesisPosition = 0;
 
         for (int i = position - 1; i >= 0; i--) {
-            if (function.charAt(i) == CLOSE_DELIMITER_CHAR) {
-                closedDelimiterCounter++;
-            } else if (function.charAt(i) == OPEN_DELIMITER_CHAR) {
-                if (closedDelimiterCounter > 0) {
-                    closedDelimiterCounter--;
+            if (function.charAt(i) == CLOSE_PARENTHESIS_CHAR) {
+                closedParenthesisCounter++;
+            } else if (function.charAt(i) == OPEN_PARENTHESIS_CHAR) {
+                if (closedParenthesisCounter > 0) {
+                    closedParenthesisCounter--;
                 } else {
-                    closestDelimiterFound = true;
-                    closestDelimiterPosition = i;
+                    closestParenthesisFound = true;
+                    closestParenthesisPosition = i;
                     break;
                 }
             } else if (function.charAt(i) == '+' || function.charAt(i) == '-' || function.charAt(i) == '*' || function.charAt(i) == '/') {
-                if (closedDelimiterCounter == 0) {
-                    function.insert(i + 1, "(");
+                if (closedParenthesisCounter == 0) {
+                    function.insert(i + 1, OPEN_PARENTHESIS);
                     position++;
-                    openedDelimiter = true;
+                    openedParenthesis = true;
                     break;
                 }
             }
         }
 
-        int openedDelimiterCount = 0;
-        boolean closedDelimited = false;
+        int openedParenthesisCount = 0;
+        boolean closedParenthesised = false;
 
         for (int i = position + 1; i < function.length(); i++) {
             if (function.charAt(i) == '+' || function.charAt(i) == '-' || function.charAt(i) == '*' || function.charAt(i) == '/') {
-                if (openedDelimiterCount == 0) {
-                    function.insert(i, ")");
+                if (openedParenthesisCount == 0) {
+                    function.insert(i, CLOSE_PARENTHESIS);
 
-                    if (!openedDelimiter) {
-                        if (closestDelimiterFound) {
-                            function.insert(closestDelimiterPosition, "(");
-                            openedDelimiter = true;
+                    if (!openedParenthesis) {
+                        if (closestParenthesisFound) {
+                            function.insert(closestParenthesisPosition, OPEN_PARENTHESIS);
+                            openedParenthesis = true;
                         } else {
-                            function.insert(0, "(");
-                            openedDelimiter = true;
+                            function.insert(0, OPEN_PARENTHESIS);
+                            openedParenthesis = true;
                         }
                     }
 
-                    closedDelimited = true;
+                    closedParenthesised = true;
 
                     break;
                 }
-            } else if (function.charAt(i) == OPEN_DELIMITER_CHAR) {
-                openedDelimiterCount++;
-            } else if (function.charAt(i) == CLOSE_DELIMITER_CHAR) {
-                if (openedDelimiterCount > 0) {
-                    openedDelimiterCount--;
-                } else if (openedDelimiter) {
-                    function.insert(i, ")");
-                    closedDelimited = true;
+            } else if (function.charAt(i) == OPEN_PARENTHESIS_CHAR) {
+                openedParenthesisCount++;
+            } else if (function.charAt(i) == CLOSE_PARENTHESIS_CHAR) {
+                if (openedParenthesisCount > 0) {
+                    openedParenthesisCount--;
+                } else if (openedParenthesis) {
+                    function.insert(i, CLOSE_PARENTHESIS);
+                    closedParenthesised = true;
                     break;
                 } else {
                     break;
@@ -211,7 +211,7 @@ public class FunctionAnalyzer {
             }
         }
 
-        if (openedDelimiter && !closedDelimited) {
+        if (openedParenthesis && !closedParenthesised) {
             function.insert(function.length(), ")");
         }
     }
