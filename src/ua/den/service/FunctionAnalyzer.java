@@ -1,5 +1,7 @@
 package ua.den.service;
 
+import ua.den.exceptions.DelimiterUnpairedException;
+
 import java.math.BigDecimal;
 import java.util.Map;
 
@@ -18,6 +20,7 @@ public class FunctionAnalyzer {
     }
 
     public BigDecimal solve() {
+        checkDelimiters(function);
         function = new String(delimitSpecSymbols());
 
         return functionSolver.solve(this).setScale(scale, roundingMethod);
@@ -57,6 +60,22 @@ public class FunctionAnalyzer {
         }
 
         return result.toString().toCharArray();
+    }
+
+    private void checkDelimiters(String function) {
+        int unpairedDelimitersCount = 0;
+
+        for (char symbol : function.toCharArray()) {
+            if (symbol == '(') {
+                unpairedDelimitersCount++;
+            } else if (symbol == ')') {
+                unpairedDelimitersCount--;
+            }
+        }
+
+        if (unpairedDelimitersCount != 0) {
+            throw new DelimiterUnpairedException();
+        }
     }
 
     private void processMultiplicationAndDivisionDelimit(StringBuilder function, int position) {
