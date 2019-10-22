@@ -42,14 +42,15 @@ public class FunctionAnalyzer {
                     || OPEN_PARENTHESIS.equals(bufferValue)
                     || CLOSE_PARENTHESIS.equals(bufferValue)
                     || bufferValue.matches("(\\d|\\.)+")) {
-                if (operandsToDelimit.contains(buffer.toString())) {
+                if (operandsToParenthesise.contains(buffer.toString())) {
                     String operand = buffer.toString();
 
                     if (operand.equals("*") || operand.equals("/")) {
-                        processMultiplicationAndDivisionParenthesis(result, counter);
-                        counter++;
+                        counter = processMultiplicationAndDivisionParenthesis(result, counter);
                     } else if (operand.equals("^")) {
-                        processPowerParenthesis(result, counter);
+                        counter = processPowerParenthesis(result, counter);
+                    } else if (operand.equals("sqrt")) {
+                        counter = processSqrtParethesis(result, counter);
                     }
                 }
 
@@ -78,7 +79,7 @@ public class FunctionAnalyzer {
         }
     }
 
-    private void processMultiplicationAndDivisionParenthesis(StringBuilder function, int position) {
+    private int processMultiplicationAndDivisionParenthesis(StringBuilder function, int position) {
         boolean openedParenthesis = false;
         boolean closestParenthesisFound = false;
         int closedParenthesisCounter = 0;
@@ -145,9 +146,11 @@ public class FunctionAnalyzer {
         if (openedParenthesis && !closedDelimited) {
             function.insert(function.length(), CLOSE_PARENTHESIS);
         }
+
+        return ++position;
     }
 
-    private void processPowerParenthesis(StringBuilder function, int position) {
+    private int processPowerParenthesis(StringBuilder function, int position) {
         boolean openedParenthesis = false;
         boolean closestParenthesisFound = false;
         int closedParenthesisCounter = 0;
@@ -214,6 +217,64 @@ public class FunctionAnalyzer {
         if (openedParenthesis && !closedParenthesised) {
             function.insert(function.length(), ")");
         }
+
+        return ++position;
+    }
+
+    private int processSqrtParethesis(StringBuilder result, int position) {
+        boolean parenthesisOpened = false;
+        int parenthesisCounter = 0;
+
+        for (int i = position - "sqrt".length() + 1; i >= 0; i--) {
+            if (i != 0) {
+                if (result.charAt(i) == OPEN_PARENTHESIS_CHAR) {
+                    parenthesisCounter++;
+                    break;
+                } else {
+                    result.insert(i, OPEN_PARENTHESIS);
+                    position++;
+                    parenthesisOpened = true;
+                    break;
+                }
+            } else {
+                result.insert(i, OPEN_PARENTHESIS);
+                position++;
+                parenthesisOpened = true;
+            }
+        }
+
+        boolean parenthesisClosed = false;
+
+        for (int i = position + 1; i < result.length(); i++) {
+            if (result.charAt(i) == CLOSE_PARENTHESIS_CHAR) {
+                if (parenthesisCounter == 0 && parenthesisOpened) {
+                    parenthesisClosed = true;
+                    break;
+                } else if (parenthesisCounter != 0) {
+                    parenthesisCounter--;
+                }
+            } else if (result.charAt(i) == OPEN_PARENTHESIS_CHAR) {
+                parenthesisCounter++;
+            } else if (Character.toString(result.charAt(i)).matches("[^\\d|\\.]")) {
+                if (parenthesisCounter == 0) {
+                    result.insert(i, CLOSE_PARENTHESIS);
+                    parenthesisClosed = true;
+
+                    if (!parenthesisOpened) {
+                        result.insert(0, OPEN_PARENTHESIS);
+                        parenthesisOpened = true;
+                    }
+
+                    break;
+                }
+            }
+        }
+
+        if (parenthesisOpened && !parenthesisClosed) {
+            result.insert(result.length(), CLOSE_PARENTHESIS);
+        }
+
+        return ++position;
     }
 
     private void removeWhitespaces(StringBuilder stringBuilder) {

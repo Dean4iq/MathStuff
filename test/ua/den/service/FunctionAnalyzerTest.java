@@ -22,7 +22,7 @@ public class FunctionAnalyzerTest {
     private double z = 100;
     private int roundingMethod = BigDecimal.ROUND_HALF_UP;
     private int scale = 11;
-    private String function = "100+30^2/x-z+y*(x+123-0.001)";
+    private String function = "100+30^2/x-z+y*(x+-123-0.001)";
 
     @Before
     public void setUp() {
@@ -61,7 +61,7 @@ public class FunctionAnalyzerTest {
 
     @Test
     public void checkWhitespaces() {
-        function = "x - y   *10+( 22 - 22)  ";
+        function = "x - y  +sqrt(x) *10+( 22 - 22)  ";
         testedObject.setFunction(function);
 
         assertEquals(new BigDecimal(-175).setScale(scale, roundingMethod), testedObject.solve());
@@ -79,7 +79,7 @@ public class FunctionAnalyzerTest {
         BigDecimal result = BigDecimal.ZERO.setScale(scale, roundingMethod);
 
         result = result.add(new BigDecimal(100).setScale(scale, roundingMethod)).setScale(scale, roundingMethod);
-        result = result.add(new BigDecimal(y).setScale(scale, roundingMethod).multiply(new BigDecimal(x).setScale(scale, roundingMethod).add(new BigDecimal(123).setScale(scale, roundingMethod)).subtract(new BigDecimal("0.001").setScale(scale, roundingMethod)).setScale(scale, roundingMethod))).setScale(scale, roundingMethod);
+        result = result.add(new BigDecimal(y).setScale(scale, roundingMethod).multiply(new BigDecimal(x).setScale(scale, roundingMethod).add(new BigDecimal(-123).setScale(scale, roundingMethod)).subtract(new BigDecimal("0.001").setScale(scale, roundingMethod)).setScale(scale, roundingMethod))).setScale(scale, roundingMethod);
         result = result.subtract(new BigDecimal(z).setScale(scale, roundingMethod)).setScale(scale, roundingMethod);
         result = result.add(new BigDecimal(30).setScale(scale, roundingMethod).pow(2).setScale(scale, roundingMethod).divide(new BigDecimal(x).setScale(scale, roundingMethod), BigDecimal.ROUND_HALF_UP).setScale(scale, roundingMethod)).setScale(scale, roundingMethod);
 

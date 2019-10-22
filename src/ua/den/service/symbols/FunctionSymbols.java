@@ -14,7 +14,7 @@ public class FunctionSymbols {
     public static final char CLOSE_PARENTHESIS_CHAR = ')';
     public static Map<String, PrimitiveFunction> mathCharacters = new HashMap<>();
     public static Map<String, PrimitiveFunction> operationCharacters = new HashMap<>();
-    public static Set<String> operandsToDelimit = new HashSet<>();
+    public static Set<String> operandsToParenthesise = new HashSet<>();
 
     static {
         mathCharacters.put("*", new MultiplyFunction());
@@ -23,9 +23,11 @@ public class FunctionSymbols {
         mathCharacters.put("-", new SubtractFunction());
 
         operationCharacters.put("^", new PowFunction());
+        operationCharacters.put("sqrt", new SqrtFunction());
 
-        operandsToDelimit.add("*");
-        operandsToDelimit.add("/");
-        operandsToDelimit.add("^");
+        operandsToParenthesise.add("*");
+        operandsToParenthesise.add("/");
+        operandsToParenthesise.add("^");
+        operandsToParenthesise.add("sqrt");
     }
 }

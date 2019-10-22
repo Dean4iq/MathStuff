@@ -22,8 +22,9 @@ public class FunctionSolver {
         int functionIndex = function.length - 1;
 
         while (functionIndex >= 0) {
+            String f = new String(function);
             iterationSymbol.append(function[functionIndex]);
-            String iterationSymbolString = iterationSymbol.toString();
+            String iterationSymbolString = new StringBuilder(iterationSymbol.toString()).reverse().toString();
 
             if (mathCharacters.containsKey(iterationSymbolString)
                     || operationCharacters.containsKey(iterationSymbolString)
@@ -39,22 +40,49 @@ public class FunctionSolver {
                 } else if (operationCharacters.containsKey(iterationSymbolString)) {
                     result = operationCharacters.get(iterationSymbolString).solve(interpretFunction(Arrays.copyOfRange(function, 0, functionIndex), BigDecimal.ZERO), result);
                     break;
-                } else if (iterationSymbolString.matches("(\\d|\\.)+")) {
+                } else if (iterationSymbolString.matches("(\\d|\\.|-)+")) {
                     if (functionIndex > 0) {
-                        if (Character.toString(function[functionIndex - 1]).matches("[^\\.\\d]")) {
-                            iterationSymbolString = iterationSymbol.reverse().toString();
+                        if (Character.toString(function[functionIndex - 1]).matches("[^\\.\\d-]")) {
                             result = new BigDecimal(iterationSymbolString);
                         } else {
-                            functionIndex--;
-                            continue;
+                            if (Character.toString(function[functionIndex - 1]).matches("[-]")) {
+                                if (functionIndex > 1) {
+                                    StringBuilder buffer = new StringBuilder();
+                                    for (int i = functionIndex - 2; i >= 0; i--) {
+                                        buffer.append(function[i]);
+                                        String bufferedString = buffer.toString();
+                                        if (mathCharacters.containsKey(bufferedString)
+                                                || operationCharacters.containsKey(bufferedString)
+                                                || OPEN_PARENTHESIS.equals(bufferedString)) {
+                                            iterationSymbol.append(functionIndex - 1);
+                                            iterationSymbolString = iterationSymbol.reverse().toString();
+                                            result = new BigDecimal(iterationSymbolString);
+                                            functionIndex--;
+                                            break;
+                                        } else if (variables.containsKey(bufferedString)
+                                                || CLOSE_PARENTHESIS.equals(bufferedString)
+                                                || bufferedString.matches("(\\d|\\.)+")) {
+                                            result = new BigDecimal(iterationSymbolString);
+                                            break;
+                                        }
+                                    }
+                                } else {
+                                    iterationSymbol.append(functionIndex - 1);
+                                    iterationSymbolString = iterationSymbol.reverse().toString();
+                                    result = new BigDecimal(iterationSymbolString);
+                                    functionIndex--;
+                                }
+                            } else {
+                                functionIndex--;
+                                continue;
+                            }
                         }
                     } else {
-                        iterationSymbolString = iterationSymbol.reverse().toString();
                         result = new BigDecimal(iterationSymbolString);
                     }
                 } else {
-                    result = resolveDelimitedPart(Arrays.copyOfRange(function, 0, functionIndex));
-                    function = cutDelimitedPart(function);
+                    result = resolveParentesisedPart(Arrays.copyOfRange(function, 0, functionIndex));
+                    function = cutParentesisedPart(function);
                     functionIndex = function.length;
                 }
 
@@ -67,7 +95,7 @@ public class FunctionSolver {
         return result.setScale(functionAnalyzer.getScale(), functionAnalyzer.getRoundingMethod());
     }
 
-    private BigDecimal resolveDelimitedPart(char[] function) {
+    private BigDecimal resolveParentesisedPart(char[] function) {
         BigDecimal buffer = BigDecimal.ZERO;
 
         int index = function.length - 1;
@@ -75,7 +103,7 @@ public class FunctionSolver {
             if (function[index] == OPEN_PARENTHESIS_CHAR) {
                 return interpretFunction(Arrays.copyOfRange(function, index + 1, function.length), buffer);
             } else if (function[index] == CLOSE_PARENTHESIS_CHAR) {
-                buffer = resolveDelimitedPart(Arrays.copyOfRange(function, 0, index));
+                buffer = resolveParentesisedPart(Arrays.copyOfRange(function, 0, index));
 
                 int closedQ = 0;
                 for (int i = index - 1; i >= 0; i--) {
@@ -99,7 +127,7 @@ public class FunctionSolver {
         return buffer;
     }
 
-    private char[] cutDelimitedPart(char[] function) {
+    private char[] cutParentesisedPart(char[] function) {
         int countOfCloseDelimiter = 0;
 
         for (int i = function.length - 1; i >= 0; i--) {
