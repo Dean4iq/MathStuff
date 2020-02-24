@@ -12,9 +12,9 @@ public class FunctionSymbols {
     public static final String CLOSE_PARENTHESIS = ")";
     public static final char OPEN_PARENTHESIS_CHAR = '(';
     public static final char CLOSE_PARENTHESIS_CHAR = ')';
-    public static Map<String, PrimitiveFunction> mathCharacters = new HashMap<>();
-    public static Map<String, PrimitiveFunction> operationCharacters = new HashMap<>();
-    public static Set<String> operandsToParenthesise = new HashSet<>();
+    public static final Map<String, PrimitiveFunction> mathCharacters = new HashMap<>();
+    public static final Map<String, PrimitiveFunction> operationCharacters = new HashMap<>();
+    public static final Set<String> operandsToParenthesise = new HashSet<>(4);
 
     static {
         mathCharacters.put("*", new MultiplyFunction());
@@ -29,5 +29,8 @@ public class FunctionSymbols {
         operandsToParenthesise.add("/");
         operandsToParenthesise.add("^");
         operandsToParenthesise.add("sqrt");
+    }
+
+    private FunctionSymbols() {
     }
 }

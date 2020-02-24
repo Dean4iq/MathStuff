@@ -22,7 +22,6 @@ public class FunctionSolver {
         int functionIndex = function.length - 1;
 
         while (functionIndex >= 0) {
-            String f = new String(function);
             iterationSymbol.append(function[functionIndex]);
             String iterationSymbolString = new StringBuilder(iterationSymbol.toString()).reverse().toString();
 
@@ -54,7 +53,7 @@ public class FunctionSolver {
                                         if (mathCharacters.containsKey(bufferedString)
                                                 || operationCharacters.containsKey(bufferedString)
                                                 || OPEN_PARENTHESIS.equals(bufferedString)) {
-                                            iterationSymbol.append(functionIndex - 1);
+                                            iterationSymbol.append(function[functionIndex - 1]);
                                             iterationSymbolString = iterationSymbol.reverse().toString();
                                             result = new BigDecimal(iterationSymbolString);
                                             functionIndex--;

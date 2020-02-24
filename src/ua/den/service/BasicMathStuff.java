@@ -73,10 +73,10 @@ public class BasicMathStuff {
             b = b.substring(1);
         }
 
-        if (new BigInteger(b).equals(new BigInteger("0"))) {
+        if (new BigInteger(b).equals(BigInteger.ZERO)) {
             throw new DivisionOnNullException();
         }
-        if (new BigInteger(a, 2).equals(new BigInteger("0"))) {
+        if (new BigInteger(a, 2).equals(BigInteger.ZERO)) {
             return "0";
         }
         if (new BigInteger(a, 2).compareTo(new BigInteger(b, 2)) < 0) {

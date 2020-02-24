@@ -1,7 +1,9 @@
 package ua.den.service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.HashMap;
+import java.util.Map;
 
 public class IntegralCounter {
     private String function;
@@ -13,26 +15,26 @@ public class IntegralCounter {
     public BigDecimal solve() {
         BigDecimal result = BigDecimal.ZERO;
         double intervals = (x2 - x1) / intervalsCount;
-        BigDecimal intervalsObject = new BigDecimal(intervals).setScale(scale, BigDecimal.ROUND_HALF_UP);
+        BigDecimal intervalsObject = BigDecimal.valueOf(intervals).setScale(scale, RoundingMode.HALF_UP);
 
         for (double i = x1; i <= x2; i += intervals) {
-            double finalI = i;
+            Map<String, BigDecimal> variables = new HashMap<>();
 
-            FunctionAnalyzer functionAnalyzer = new FunctionAnalyzer(new HashMap<String, BigDecimal>() {{
-                put("x", new BigDecimal(finalI));
-                put("y", new BigDecimal(2));
-            }});
+            variables.put("x", BigDecimal.valueOf(i));
+            variables.put("y", new BigDecimal(2));
+
+            FunctionAnalyzer functionAnalyzer = new FunctionAnalyzer(variables);
 
             functionAnalyzer.setFunction(function);
-            functionAnalyzer.setRoundingMethod(BigDecimal.ROUND_HALF_UP);
+            functionAnalyzer.setRoundingMethod(RoundingMode.HALF_UP);
             functionAnalyzer.setScale(scale);
 
-            result = result.add(functionAnalyzer.solve().setScale(scale, BigDecimal.ROUND_HALF_UP)).setScale(scale, BigDecimal.ROUND_HALF_UP);
+            result = result.add(functionAnalyzer.solve().setScale(scale, RoundingMode.HALF_UP)).setScale(scale, RoundingMode.HALF_UP);
         }
 
         return result.
                 multiply(intervalsObject).
-                setScale(scale, BigDecimal.ROUND_HALF_UP);
+                setScale(scale, RoundingMode.HALF_UP);
     }
 
     public String getFunction() {

@@ -3,6 +3,7 @@ package ua.den.service;
 import ua.den.exceptions.ParenthesisUnpairedException;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Map;
 
 import static ua.den.service.symbols.FunctionSymbols.*;
@@ -10,7 +11,7 @@ import static ua.den.service.symbols.FunctionSymbols.*;
 public class FunctionAnalyzer {
     private String function;
     private int scale;
-    private int roundingMethod;
+    private RoundingMode roundingMethod;
 
     private Map<String, BigDecimal> variables;
     private FunctionSolver functionSolver = new FunctionSolver();
@@ -96,13 +97,11 @@ public class FunctionAnalyzer {
                     closestParenthesisPosition = i;
                     break;
                 }
-            } else if (function.charAt(i) == '+' || function.charAt(i) == '-') {
-                if (closedParenthesisCounter == 0) {
-                    function.insert(i + 1, OPEN_PARENTHESIS);
-                    position++;
-                    openedParenthesis = true;
-                    break;
-                }
+            } else if ((function.charAt(i) == '+' || function.charAt(i) == '-') && closedParenthesisCounter == 0) {
+                function.insert(i + 1, OPEN_PARENTHESIS);
+                position++;
+                openedParenthesis = true;
+                break;
             }
         }
 
@@ -167,13 +166,14 @@ public class FunctionAnalyzer {
                     closestParenthesisPosition = i;
                     break;
                 }
-            } else if (function.charAt(i) == '+' || function.charAt(i) == '-' || function.charAt(i) == '*' || function.charAt(i) == '/') {
-                if (closedParenthesisCounter == 0) {
-                    function.insert(i + 1, OPEN_PARENTHESIS);
-                    position++;
-                    openedParenthesis = true;
-                    break;
-                }
+            } else if ((function.charAt(i) == '+' || function.charAt(i) == '-' || function.charAt(i) == '*'
+                    || function.charAt(i) == '/')
+                    && closedParenthesisCounter == 0) {
+                function.insert(i + 1, OPEN_PARENTHESIS);
+                position++;
+                openedParenthesis = true;
+                break;
+
             }
         }
 
@@ -255,18 +255,16 @@ public class FunctionAnalyzer {
                 }
             } else if (result.charAt(i) == OPEN_PARENTHESIS_CHAR) {
                 parenthesisCounter++;
-            } else if (Character.toString(result.charAt(i)).matches("[^\\d|\\.]")) {
-                if (parenthesisCounter == 0) {
-                    result.insert(i, CLOSE_PARENTHESIS);
-                    parenthesisClosed = true;
+            } else if (Character.toString(result.charAt(i)).matches("[^\\d|\\.]") && parenthesisCounter == 0) {
+                result.insert(i, CLOSE_PARENTHESIS);
+                parenthesisClosed = true;
 
-                    if (!parenthesisOpened) {
-                        result.insert(0, OPEN_PARENTHESIS);
-                        parenthesisOpened = true;
-                    }
-
-                    break;
+                if (!parenthesisOpened) {
+                    result.insert(0, OPEN_PARENTHESIS);
+                    parenthesisOpened = true;
                 }
+
+                break;
             }
         }
 
@@ -303,11 +301,11 @@ public class FunctionAnalyzer {
         this.scale = scale;
     }
 
-    public int getRoundingMethod() {
+    public RoundingMode getRoundingMethod() {
         return roundingMethod;
     }
 
-    public void setRoundingMethod(int roundingMethod) {
+    public void setRoundingMethod(RoundingMode roundingMethod) {
         this.roundingMethod = roundingMethod;
     }
 
